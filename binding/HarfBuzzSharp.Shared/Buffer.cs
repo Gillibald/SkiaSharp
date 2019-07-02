@@ -296,7 +296,18 @@ namespace HarfBuzzSharp
 			return new ReadOnlySpan<GlyphPosition> (infoPtrs, length);
 		}
 
-		public void GuessSegmentProperties () => HarfBuzzApi.hb_buffer_guess_segment_properties (Handle);
+		public void GuessSegmentProperties ()
+		{
+			if (Length == 0) {
+				throw new InvalidOperationException ("Buffer can't be empty.");
+			}
+
+			if (ContentType != ContentType.Unicode) {
+				throw new InvalidOperationException ("ContentType must be of type Unicode.");
+			}
+
+			HarfBuzzApi.hb_buffer_guess_segment_properties (Handle);
+		}
 
 		public void ClearContents () => HarfBuzzApi.hb_buffer_clear_contents (Handle);
 
@@ -304,17 +315,27 @@ namespace HarfBuzzSharp
 
 		public void Append (Buffer buffer) => Append (buffer, 0, -1);
 
-		public void Append (Buffer buffer, int start, int end) =>
+		public void Append (Buffer buffer, int start, int end)
+		{
+			if (buffer.Length == 0) {
+				throw new InvalidOperationException ("Buffer can't be empty.");
+			}
+
+			if (ContentType != buffer.ContentType) {
+				throw new InvalidOperationException ("ContentType must be equal.");
+			}
+
 			HarfBuzzApi.hb_buffer_append (Handle, buffer.Handle, start, end == -1 ? buffer.Length : end);
+		}
 
 		public void NormalizeGlyphs ()
 		{
-			if (ContentType != ContentType.Glyphs) {
-				throw new InvalidOperationException ("ContentType must be of type Glyphs.");
-			}
-
 			if (GlyphPositions.Length == 0) {
 				throw new InvalidOperationException ("GlyphPositions can't be empty.");
+			}
+
+			if (ContentType != ContentType.Glyphs) {
+				throw new InvalidOperationException ("ContentType must be of type Glyphs.");
 			}
 
 			HarfBuzzApi.hb_buffer_normalize_glyphs (Handle);

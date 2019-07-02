@@ -103,15 +103,13 @@ namespace HarfBuzzSharp.Tests
 		}
 
 		[SkippableFact]
-		public void ShouldThrowInvalidOperationExceptionOnAddUtfWhenBufferIsShaped()
+		public void ShouldThrowInvalidOperationExceptionOnAddUtfWhenBufferContainsGlyphs()
 		{
 			using (var buffer = new Buffer())
 			{
-				buffer.AddUtf8(SimpleText);
+				buffer.ContentType = ContentType.Glyphs;
 
-				Font.Shape(buffer);
-
-				Assert.Throws<InvalidOperationException>(() => { buffer.AddUtf8("A"); });
+				Assert.Throws<InvalidOperationException>(() => { buffer.AddUtf8(SimpleText); });
 			}
 		}
 
